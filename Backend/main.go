@@ -6,9 +6,12 @@ import (
 	"github.com/navneetshukl/routes"
 )
 
+func init(){
+	database.MigrateDatabase()
+}
+
 func main() {
     app := fiber.New()
-	database.ConnectToDatabase()
 
 	routes.Setup(app)
 

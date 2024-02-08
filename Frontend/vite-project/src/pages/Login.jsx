@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Navigate } from "react-router-dom";
 
-const Login = () => {
+const Login = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [redirect, setRedirect] = useState(false);
@@ -14,14 +14,13 @@ const Login = () => {
       credentials: "include",
       body: JSON.stringify({ email, password }),
     });
-    const responseBody = await response.text();
-    if (response.ok) {
-      console.log(responseBody);
-      setRedirect(true);
-    } else {
-      console.log(responseBody);
-      console.error("Error:", response.status);
-    }
+    const responseBody = await response.json();
+
+   
+    props.setName(responseBody.name)
+     setRedirect(true);
+   
+     
   };
   if (redirect) {
     return <Navigate to="/" />;

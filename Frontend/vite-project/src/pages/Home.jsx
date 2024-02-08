@@ -1,9 +1,15 @@
-import React from 'react'
+import React, { useEffect,useState } from "react";
 
-const Home = () => {
+const Home = (props) => {
+  
+
   return (
-    <div>Home</div>
-  )
-}
+    <div className="text-center">
+      <h1>
+        {props.name? " Welcome "+ props.name :"You are not logged in"}
+      </h1>
+    </div>
+  );
+};
 
-export default Home
+export default Home;

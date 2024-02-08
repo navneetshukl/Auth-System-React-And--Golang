@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"strconv"
 	"time"
 
@@ -11,7 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const secretKey="usejhvsvefuvwuefvusdf"
+const secretKey = "usejhvsvefuvwuefvusdf"
 
 func Register(c *fiber.Ctx) error {
 
@@ -39,7 +40,13 @@ func Login(c *fiber.Ctx) error {
 	var data map[string]string
 
 	if err := c.BodyParser(&data); err != nil {
-		return err
+
+		log.Println("Error in reading the body ", err)
+		c.Status(fiber.StatusNotFound)
+		return c.JSON(fiber.Map{
+			"message": "Error in reading the body",
+		})
+
 	}
 
 	var user models.User
@@ -67,15 +74,15 @@ func Login(c *fiber.Ctx) error {
 		ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 	})
 
-	token,err:=claims.SignedString([]byte(secretKey))
+	token, err := claims.SignedString([]byte(secretKey))
 
-	if err!=nil{
+	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
 			"message": "could not login",
 		})
 	}
-	cookie:=fiber.Cookie{
+	cookie := fiber.Cookie{
 		Name:     "jwt",
 		Value:    token,
 		Expires:  time.Now().Add(time.Hour * 24),
@@ -87,21 +94,21 @@ func Login(c *fiber.Ctx) error {
 	})
 }
 
-func User(c *fiber.Ctx)error{
-	cookie:=c.Cookies("jwt")
+func User(c *fiber.Ctx) error {
+	cookie := c.Cookies("jwt")
 
-	token,err:=jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {
-		return []byte(secretKey),nil
+	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(t *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
 	})
 
-	if err!=nil{
+	if err != nil {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"message": "unauthenticated",
 		})
 	}
 
-	claims:=token.Claims.(*jwt.StandardClaims)
+	claims := token.Claims.(*jwt.StandardClaims)
 
 	var user models.User
 
@@ -112,8 +119,8 @@ func User(c *fiber.Ctx)error{
 
 }
 
-func Logout(c *fiber.Ctx) error{
-	cookie:=fiber.Cookie{
+func Logout(c *fiber.Ctx) error {
+	cookie := fiber.Cookie{
 		Name:     "jwt",
 		Value:    "",
 		Expires:  time.Now().Add(-time.Hour),
